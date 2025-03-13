@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jogo de Matemática</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    .problema {
+      font-size: 24px;
+      margin: 20px;
+    }
+    input {
+      font-size: 18px;
+      padding: 5px;
+    }
+    button {
+      font-size: 18px;
+      padding: 5px 10px;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jogo de Matemática</h1>
+  <div id="problema" class="problema"></div>
+  <input type="number" id="resposta">
+  <button onclick="verificarResposta()">Verificar</button>
+  <div id="feedback"></div>
+  <div id="pontuacao">Pontuação: 0</div>
+
+  <script>
+    let pontuacao = 0;
+    let dificuldade = 1;
+
+    function gerarProblema() {
+      const operacoes = ['+', '-', '*'];
+      const operacao = operacoes[Math.floor(Math.random() * operacoes.length)];
+      let num1 = Math.floor(Math.random() * 10 * dificuldade);
+      let num2 = Math.floor(Math.random() * 10 * dificuldade);
+
+      if (operacao === '-') {
+        if (num2 > num1) {
+          const temp = num1;
+          num1 = num2;
+          num2 = temp;
+        }
+      }
+
+      document.getElementById('problema').textContent = `${num1} ${operacao} ${num2} =`;
+    }
+
+    function verificarResposta() {
+      const resposta = parseInt(document.getElementById('resposta').value);
+      const problema = document.getElementById('problema').textContent;
+      const num1 = parseInt(problema.split(' ')[0]);
+      const operacao = problema.split(' ')[1];
+      const num2 = parseInt(problema.split(' ')[2]);
+      let respostaCorreta;
+
+      switch (operacao) {
+        case '+':
+          respostaCorreta = num1 + num2;
+          break;
+        case '-':
+          respostaCorreta = num1 - num2;
+          break;
+        case '*':
+          respostaCorreta = num1 * num2;
+          break;
+      }
+
+      if (resposta === respostaCorreta) {
+        pontuacao += 10;
+        dificuldade += 0.1;
+        document.getElementById('feedback').textContent = 'Correto!';
+        document.getElementById('feedback').style.color = 'green';
+      } else {
+        pontuacao -= 5;
+        document.getElementById('feedback').textContent = 'Incorreto!';
+        document.getElementById('feedback').style.color = 'red';
+      }
+
+      document.getElementById('pontuacao').textContent = `Pontuação: ${pontuacao}`;
+      gerarProblema();
+    }
+
+    gerarProblema();
+  </script>
+</body>
+</html>
