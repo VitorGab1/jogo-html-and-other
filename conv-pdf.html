@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de .txt para PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #pdfViewer {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Conversor de .txt para PDF</h1>
+    <input type="file" id="txtFile" accept=".txt">
+    <button onclick="converterParaPDF()">Gerar PDF</button>
+    <div id="pdfViewer"></div>
+
+    <script>
+        async function converterParaPDF() {
+            const fileInput = document.getElementById('txtFile');
+            const pdfViewer = document.getElementById('pdfViewer');
+
+            if (!fileInput.files.length) {
+                alert("Por favor, selecione um arquivo .txt.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function(event) {
+                const textContent = event.target.result;
+
+                // Criar o documento PDF
+                const pdfDoc = await PDFLib.PDFDocument.create();
+                const page = pdfDoc.addPage();
+                const { width, height } = page.getSize();
+
+                const fontSize = 12;
+                const lines = textContent.split('\n');
+                let y = height - 20;
+
+                lines.forEach(line => {
+                    page.drawText(line, {
+                        x: 20,
+                        y: y,
+                        size: fontSize
+                    });
+                    y -= fontSize + 5; // Ajusta a posição vertical
+                });
+
+                const pdfBytes = await pdfDoc.save();
+
+                // Exibir o PDF na página
+                const blob = new Blob([pdfBytes], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+
+                const downloadLink = document.createElement('a');
+                downloadLink.href = url;
+                downloadLink.download = "arquivo.pdf";
+                downloadLink.innerText = "Clique aqui para baixar o PDF";
+                pdfViewer.innerHTML = "";
+                pdfViewer.appendChild(downloadLink);
+
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.width = "100%";
+                iframe.height = "500px";
+                pdfViewer.appendChild(iframe);
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
